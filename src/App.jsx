@@ -3,8 +3,8 @@ import "./App.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import Navbar from "./layout/Navbar";
-import Home from "./pages/Home";
+import Navbar from "./layout/navbar";
+import Home from "./pages/home";
 import AddUser from "./users/AddUser";
 import EditUser from "./users/EditUser";
 import ViewUser from "./users/ViewUser";
