@@ -1,12 +1,32 @@
-import { useState } from 'react'
-import './App.css'
+import React from "react";
+import "./App.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import Navbar from './layout/navbar';
-import Home from './pages/home';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AddUser from './users/AddUser';
-import EditUser from './users/EditUser';
-import ViewUser from './users/ViewUser';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+import Navbar from "./layout/navbar";
+import Home from "./pages/home";
+import AddUser from "./users/AddUser";
+import EditUser from "./users/EditUser";
+import ViewUser from "./users/ViewUser";
+import Login from "./auth/Login";
+import Register from "./auth/Register";
+import LogoutSuccess from "./auth/LogoutSuccess"; // ✅ Import new logout page
+import AuthService from "./auth/AuthService";
+
+const ProtectedRoute = ({ element, requiredRoles }) => {
+  const isAuthenticated = AuthService.isAuthenticated();
+  const userRole = AuthService.getUserRole();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requiredRoles && !requiredRoles.includes(userRole)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return element;
+};
 
 function App() {
   return (
@@ -14,10 +34,17 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route exact path="/adduser" element={<AddUser />} />
-          <Route exact path="/viewuser/:id" element={<ViewUser/>}/>
-          <Route exact path="/edituser/:id" element={<EditUser />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/logout-success" element={<LogoutSuccess />} /> {/* ✅ New route */}
+
+          {/* ✅ Protected Routes */}
+          <Route path="/adduser" element={<ProtectedRoute element={<AddUser />} requiredRoles={["ADMIN"]} />} />
+          <Route path="/edituser/:id" element={<ProtectedRoute element={<EditUser />} requiredRoles={["ADMIN", "PRIVILEGED_USER"]} />} />
+
+          {/* ✅ Public Route (ViewUser should be accessible to all users, including guests) */}
+          <Route path="/viewuser/:id" element={<ViewUser />} /> 
         </Routes>
       </Router>
     </div>
